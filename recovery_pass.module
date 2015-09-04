@@ -5,13 +5,24 @@
  */
 
 /**
+ *
+ */
+function recovery_pass_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#recovery_pass':
+      $output = file_get_contents(drupal_get_path('module', 'recovery_pass') .'/README.txt');
+      return module_exists('markdown') ? filter_xss_admin(module_invoke('markdown', 'filter', 'process', 0, -1, $output)) : '<pre>'. check_plain($output) .'</pre>';
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function recovery_pass_menu() {
   $items = array();
 
   $items['admin/config/people/recovery-pass'] = array(
-    'title' => 'Recover Password Configuration',
+    'title' => 'Recovery Password Configuration',
     'description' => 'Configure email message to be sent to user for password recovery.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('recovery_pass_config_form'),
@@ -20,7 +31,6 @@ function recovery_pass_menu() {
   );
   return $items;
 }
-
 
 /**
  * Implements hook_FORM_ID_alter().
@@ -68,6 +78,9 @@ function recovery_pass_mail($key, &$message, $params) {
     case 'recovery_pass':
       $message['subject'] = $params['subject'];
       $message['body'][] = $params['body'];
+      if (module_exists("htmlmail")) {
+        $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+      }
       break;
   }
 }

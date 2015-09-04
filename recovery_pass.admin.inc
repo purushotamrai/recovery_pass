@@ -27,6 +27,10 @@ function recovery_pass_config_form($form, &$form_state) {
     '#default_value' => _recovery_pass_mail_text('email_text'),
   );
 
+  if (module_exists("htmlmail")) {
+    $form['recovery_pass_email_text']['#description'] = t('Supports HTML Mail. Remember to add <br /> tag for new line.') ;
+  }
+
   if (module_exists("token")) {
     $form['token_help'] = array(
       '#type' => 'markup',
