@@ -1,0 +1,112 @@
+<?php
+/**
+ * @file
+ * Alters mail being sent to user for password recovery.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function recovery_pass_menu() {
+  $items = array();
+
+  $items['admin/config/people/recovery-pass'] = array(
+    'title' => 'Recover Password Configuration',
+    'description' => 'Configure email message to be sent to user for password recovery.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('recovery_pass_config_form'),
+    'access arguments' => array('administer users'),
+    'file' => 'recovery_pass.admin.inc',
+  );
+  return $items;
+}
+
+
+/**
+ * Implements hook_FORM_ID_alter().
+ *
+ * Overrides default submit handler for user_pass form.
+ */
+function recovery_pass_form_user_pass_alter(&$form, &$form_state, $form_id) {
+  $form['#submit'] = array('recovery_pass_forgot_password_submit');
+}
+
+/**
+ * Custom submit handler to send password in recovery mail.
+ */
+function recovery_pass_forgot_password_submit($form, &$form_state) {
+  global $language;
+  $user = $form_state['values']['account'];
+  $random_password = user_password();
+  user_save($user, $edit = array('pass' => $random_password), $category = 'account');
+
+  $message = _recovery_pass_mail_text('email_text', $language, TRUE, $user);
+  if ($message) {
+    $message = str_replace("[user_new_password]", $random_password, $message);
+  }
+  $subject = _recovery_pass_mail_text('email_subject', $language, TRUE, $user);
+  $params = array(
+    'body' => $message,
+    'subject' => $subject,
+  );
+  $to = $user->mail;
+  $from = variable_get('site_mail');
+  if (drupal_mail('recovery_pass', 'recovery_pass', $to, language_default(), $params, $from, TRUE)) {
+    drupal_set_message(t("Further instructions have been sent to your registered Email-id."), 'status', FALSE);
+  }
+  else {
+    drupal_set_message(t("Error Sending Recovery Mail. Please contact site administrator."), 'error', FALSE);
+  }
+  $form_state['redirect'] = 'user';
+}
+
+/**
+ * Implements hook_mail().
+ */
+function recovery_pass_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'recovery_pass':
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      break;
+  }
+}
+
+/**
+ * Returns a mail string for a variable name.
+ *
+ * Used by recovery_pass_mail() and the settings forms to retrieve strings.
+ */
+function _recovery_pass_mail_text($key, $language = NULL, $replace = TRUE, $user = array()) {
+  $langcode = isset($language) ? $language->language : NULL;
+
+  if ($admin_setting = variable_get('recovery_pass_' . $key, FALSE)) {
+    // An admin setting overrides the default string.
+    $text = $admin_setting;
+  }
+  else {
+    // No override, return default string.
+    switch ($key) {
+      case 'email_subject':
+        $text = t('Replacement login information for [user:name] at [site:name]', array(), array('langcode' => $langcode));
+        break;
+
+      case 'email_text':
+        $text = t("[user:name],
+
+A request to reset the password for your account has been made at [site:name].
+
+Your new password is [user_new_password].
+
+
+--  [site:name] team", array(), array('langcode' => $langcode));
+        break;
+    }
+  }
+
+  if ($replace) {
+    return token_replace($text, array('user' => $user));
+  }
+
+  return $text;
+}

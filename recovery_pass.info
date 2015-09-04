@@ -1,0 +1,4 @@
+name = Recovery Password
+description = Provides Option to send Recovery Password in the email itself.
+core = 7.x
+configure = admin/config/people/recovery-pass
