@@ -5,13 +5,13 @@
  */
 
 /**
- *
+ * Implements hook_help().
  */
 function recovery_pass_help($path, $arg) {
   switch ($path) {
     case 'admin/help#recovery_pass':
-      $output = file_get_contents(drupal_get_path('module', 'recovery_pass') .'/README.txt');
-      return module_exists('markdown') ? filter_xss_admin(module_invoke('markdown', 'filter', 'process', 0, -1, $output)) : '<pre>'. check_plain($output) .'</pre>';
+      $output = file_get_contents(drupal_get_path('module', 'recovery_pass') . '/README.txt');
+      return module_exists('markdown') ? filter_xss_admin(module_invoke('markdown', 'filter', 'process', 0, -1, $output)) : '<pre>' . check_plain($output) . '</pre>';
   }
 }
 
@@ -79,6 +79,7 @@ function recovery_pass_mail($key, &$message, $params) {
       $message['subject'] = $params['subject'];
       $message['body'][] = $params['body'];
       if (module_exists("htmlmail")) {
+        // For html mail.
         $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
       }
       break;
