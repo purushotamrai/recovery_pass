@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Alters mail being sent to user for password recovery.
+ * Alters default Drupal password recovery process by overriding default submit.
  */
 
 /**
@@ -21,6 +21,7 @@ function recovery_pass_help($path, $arg) {
 function recovery_pass_menu() {
   $items = array();
 
+  // Menu item for module configurations.
   $items['admin/config/people/recovery-pass'] = array(
     'title' => 'Recovery Password Configuration',
     'description' => 'Configure email message to be sent to user for password recovery.',
@@ -34,10 +35,9 @@ function recovery_pass_menu() {
 
 /**
  * Implements hook_FORM_ID_alter().
- *
- * Overrides default submit handler for user_pass form.
  */
 function recovery_pass_form_user_pass_alter(&$form, &$form_state, $form_id) {
+  // Overrides default submit handler for user_pass form.
   $form['#submit'] = array('recovery_pass_forgot_password_submit');
 }
 
@@ -47,11 +47,16 @@ function recovery_pass_form_user_pass_alter(&$form, &$form_state, $form_id) {
 function recovery_pass_forgot_password_submit($form, &$form_state) {
   global $language;
   $user = $form_state['values']['account'];
+
+  // Generate random password.
   $random_password = user_password();
+  // Save new password.
   user_save($user, $edit = array('pass' => $random_password), $category = 'account');
 
+  // Retrive email body and subject.
   $message = _recovery_pass_mail_text('email_text', $language, TRUE, $user);
   if ($message) {
+    // Replace [user_new_password] placeholder with new password.
     $message = str_replace("[user_new_password]", $random_password, $message);
   }
   $subject = _recovery_pass_mail_text('email_subject', $language, TRUE, $user);
@@ -76,6 +81,7 @@ function recovery_pass_forgot_password_submit($form, &$form_state) {
 function recovery_pass_mail($key, &$message, $params) {
   switch ($key) {
     case 'recovery_pass':
+      // Mail parameters used for recovery mail.
       $message['subject'] = $params['subject'];
       $message['body'][] = $params['body'];
       if (module_exists("htmlmail")) {
@@ -119,6 +125,7 @@ Your new password is [user_new_password].
   }
 
   if ($replace) {
+    // Token Replace the text.
     return token_replace($text, array('user' => $user));
   }
 
