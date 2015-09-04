@@ -28,7 +28,7 @@ function recovery_pass_config_form($form, &$form_state) {
   );
 
   if (module_exists("htmlmail")) {
-    $form['recovery_pass_email_text']['#description'] = t('Supports HTML Mail. Remember to add <br /> tag for new line.') ;
+    $form['recovery_pass_email_text']['#description'] = t('Supports HTML Mail. Remember to add < br /> tag for new line.') ;
   }
 
   if (module_exists("token")) {
