@@ -45,8 +45,10 @@ RECOMMENDED MODULES
 CONFIGURATION
 -------------
 The password recovery mail body and subject to be sent to user is configurable and corresponding configuration settings are available at admin/config/people/recovery-pass.For displaying new password please use [user_new_password] placeholder in the mail body.
+
 If HTMLMAIL module exists then write mail in HTML format else email body will be sent as plain text considering new line.
 
+Warning Message to be shown, if user after resetting the password uses the old password again is configurable and can be enabled/disabled. By default warning message will be shown.
 
 TROUBLESHOOTING
 ---------------

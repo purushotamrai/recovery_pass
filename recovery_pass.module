@@ -163,6 +163,10 @@ Your new password is [user_new_password].
 
 --  [site:name] team", array(), array('langcode' => $langcode));
         break;
+
+      case 'old_pass_warning':
+        $text = t('You are using <strong>old password</strong>, your password was reset recently. New Password was sent to your registered email id.');
+        break;
     }
   }
 
@@ -214,7 +218,9 @@ function recovery_pass_user_login_validate($form, &$form_state) {
       $old_password = $result['old_pass'];
       // Match input password with password stored in recovery_pass table.
       if (_recovery_pass_match_old_password($input_password, $old_password)) {
-        drupal_set_message(t('You are using <strong>old password</strong>, your password was reset recently. New Password was sent to your registered email id.'), 'warning', FALSE);
+        if (variable_get('recovery_pass_old_pass_show', 1)) {
+          drupal_set_message(_recovery_pass_mail_text('old_pass_warning'), 'warning', FALSE);
+        }
       }
       else {
         // Irrespective of the input password delete the entry.

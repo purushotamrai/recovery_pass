@@ -39,6 +39,19 @@ function recovery_pass_config_form($form, &$form_state) {
       '#theme' => 'token_tree_link',
     );
   }
+  $form['recovery_pass_old_pass_show'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Warning message to users for trying old password at login form.'),
+    '#default_value' => variable_get('recovery_pass_old_pass_show', 1),
+  );
+
+  $form['recovery_pass_old_pass_warning'] = array(
+    '#type' => 'textarea',
+    '#rows' => 2,
+    '#title' => t('Old Password Warning Message'),
+    '#description' => t('Warning message to be shown, if user after resetting the password uses the old password again.'),
+    '#default_value' => _recovery_pass_mail_text('old_pass_warning'),
+  );
 
   return system_settings_form($form);
 }
