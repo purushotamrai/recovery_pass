@@ -2,6 +2,7 @@ CONTENTS OF THIS FILE
 ---------------------
 
  * Introduction
+ * Module Details
  * Recommended modules
  * Configuration
  * Troubleshooting
@@ -12,6 +13,21 @@ CONTENTS OF THIS FILE
 INTRODUCTION
 ------------
 Recovery Password Module alters default Drupal password reset process and makes it possible to send the new password in recovery mail itself. In this case, when user clicks on forgot password providing valid username or email address, new password is generated randomly and is sent to the user email address.
+
+
+MODULE DETAILS
+--------------
+Drupal by default sends Password Reset URL by mail to user's email id in password recovery mail, but Recovery Password modules makes it possible for Drupal to send any random password by email instead of URL to the user.
+
+Recovery Password Module alters default Drupal password reset process and makes it possible to send the new password in recovery mail itself. In this case, when user clicks on forgot password providing valid username or email address, new password is generated randomly and is sent to the user email address.
+
+The password recovery mail body and subject to be sent to user is configurable and corresponding configuration settings are available at admin/config/people/recovery-pass.For displaying new password please use [user_new_password] placeholder in the mail body.
+
+Important: As of now Recovery Password Module overrides default Drupal behaviour for password recovery and hence the previous settings will not work once the module is enabled till it is disabled again. User tokens are available in this case also.
+
+Warning !!! Once forgot password is clicked for a user, the password gets changed for that user immediately.
+
+Added Functionality: After Password Reset, next time the user enters with old password, a warning message saying that the password has been reset is shown to the user. While in case user enters any password other than the old one, that warning message will no more appear for that user.
 
 
 RECOMMENDED MODULES
