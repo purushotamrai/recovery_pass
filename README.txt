@@ -27,14 +27,11 @@ Important: As of now Recovery Password Module overrides default Drupal behaviour
 
 Warning !!! Once forgot password is clicked for a user, the password gets changed for that user immediately.
 
-Added Functionality: After Password Reset, next time the user enters with old password, a warning message saying that the password has been reset is shown to the user. While in case user enters any password other than the old one, that warning message will no more appear for that user.
+Added Functionality: After Password Reset, next time the user enters with old password, a warning message saying that the password has been reset is shown to the user which is configurable and can be disabled also. While in case user enters any password other than the old one, that warning message will no more appear for that user.
 
 
 RECOMMENDED MODULES
 -------------------
-* STMP (https://www.drupal.org/project/smtp)
-  When enabled smtp module allows Drupal to bypass the PHP mail() function and send email directly to an SMTP server.
-
 * HTMLMAIL (https://www.drupal.org/project/htmlmail)
   When enabled Recovery Password module, it supports HTML Mail. You can use html in recovery mail's body to be sent to the user at module configuration settings.
 
@@ -44,16 +41,20 @@ RECOMMENDED MODULES
 
 CONFIGURATION
 -------------
-The password recovery mail body and subject to be sent to user is configurable and corresponding configuration settings are available at admin/config/people/recovery-pass.For displaying new password please use [user_new_password] placeholder in the mail body.
+* The password recovery mail body and subject to be sent to user is configurable and corresponding configuration settings are available at admin/config/people/recovery-pass.For displaying new password please use [user_new_password] placeholder in the mail body.
 
-If HTMLMAIL module exists then write mail in HTML format else email body will be sent as plain text considering new line.
+* If HTMLMAIL module exists then write mail in HTML format else email body will be sent as plain text considering new line.
 
-Warning Message to be shown, if user after resetting the password uses the old password again is configurable and can be enabled/disabled. By default warning message will be shown.
+* Warning Message to be shown, if user after resetting the password uses the old password again is configurable and can be enabled/disabled. By default warning message will be shown.
+
+* Redirect Path after user submits Forgot Password Form is also made configurable with recovery password module.
+
 
 TROUBLESHOOTING
 ---------------
-As of now, Recovery Module alters user_pass form and hence the it works at only Request new password form at url: /user/password .
-
+As of now, Recovery Module alters user_pass form and hence the it works at only Request new password form at url: /user/password . In case the module is not working properly, you may try:
+* Clear the cache
+* Reinstall the module after disable and uninstallation.
 
 FAQ
 ---

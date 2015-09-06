@@ -64,6 +64,10 @@ function recovery_pass_forgot_password_submit($form, &$form_state) {
     $message = str_replace("[user_new_password]", $random_password, $message);
   }
   $subject = _recovery_pass_mail_text('email_subject', $language, TRUE, $user);
+  if (module_exists("htmlmail")) {
+    // For html mail convert new lines to br.
+    $message = nl2br($message);
+  }
   $params = array(
     'body' => $message,
     'subject' => $subject,
@@ -76,40 +80,22 @@ function recovery_pass_forgot_password_submit($form, &$form_state) {
   else {
     drupal_set_message(t("Error Sending Recovery Mail. Please contact site administrator."), 'error', FALSE);
   }
-  $form_state['redirect'] = 'user';
+  $form_state['redirect'] = variable_get('recovery_pass_fpass_redirect', 'user');
 }
 
 /**
  * Temporarily stores old password in custom table for error message in future.
  */
 function _recovery_pass_store_old_pass($user) {
-  // Verify if already user has entery in custom table.
-  $result = db_select('recovery_pass', 'r')
-    ->fields('r', array('uid'))
-    ->condition('uid', (int) $user->uid)
-    ->execute()
-    ->fetchAssoc();
-
-  if ($result) {
-    // Update existing entry.
-    $result = db_update('recovery_pass')
-      ->fields(array(
-        'old_pass' => $user->pass,
-        'changed' => time(),
-      ))
-      ->condition('uid', (int) $user->uid)
-      ->execute();
-  }
-  else {
-    // Insert new entry.
-    $result = db_insert('recovery_pass')
-      ->fields(array(
+  // Update or Insert using db_merge() the old password.
+  $result = db_merge('recovery_pass')
+    ->key(array('uid' => $user->uid))
+    ->fields(array(
         'uid' => (int) $user->uid,
         'old_pass' => $user->pass,
         'changed' => time(),
-      ))
-      ->execute();
-  }
+    ))
+    ->execute();
   if ($result) {
     // Successfully saved old password.
     return TRUE;
@@ -179,20 +165,34 @@ Your new password is [user_new_password].
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_alter().
  */
 function recovery_pass_form_alter(&$form, &$form_state, $form_id) {
-  switch ($form_id) {
-    case 'user_login_block':
-    case 'user_login':
-      // Extending default drupal login validators.
-      $form['#validate'] = array(
-        'user_login_name_validate',
-        'recovery_pass_user_login_validate',
-        'user_login_authenticate_validate',
-        'user_login_final_validate',
-      );
-      break;
+  if (variable_get('recovery_pass_old_pass_show', 1)) {
+    switch ($form_id) {
+      case 'user_login_block':
+      case 'user_login':
+        // Extending default drupal login validators.
+        $insert = 'recovery_pass_user_login_validate';
+        $form['#validate'] = _recovery_pass_insert_array($form['#validate'], 1, $insert);
+        break;
+    }
+  }
+}
+
+/**
+ * To insert our validator at index 1 between the default validators.
+ */
+function _recovery_pass_insert_array($array, $index, $val) {
+  // Because this will be used one more time.
+  $size = count($array);
+  if (!is_int($index) || $index < 0 || $index > $size) {
+    return -1;
+  }
+  else {
+    $temp   = array_slice($array, 0, $index);
+    $temp[] = $val;
+    return array_merge($temp, array_slice($array, $index, $size));
   }
 }
 
@@ -212,15 +212,12 @@ function recovery_pass_user_login_validate($form, &$form_state) {
       ->condition('uid', (int) $account->uid)
       ->execute()
       ->fetchAssoc();
-
     if ($result) {
       // If uid exists in table.
       $old_password = $result['old_pass'];
       // Match input password with password stored in recovery_pass table.
       if (_recovery_pass_match_old_password($input_password, $old_password)) {
-        if (variable_get('recovery_pass_old_pass_show', 1)) {
-          drupal_set_message(_recovery_pass_mail_text('old_pass_warning'), 'warning', FALSE);
-        }
+        drupal_set_message(_recovery_pass_mail_text('old_pass_warning'), 'warning', FALSE);
       }
       else {
         // Irrespective of the input password delete the entry.
@@ -281,19 +278,4 @@ function recover_pass_cron() {
   $entry_deleted = db_delete('recovery_pass')
     ->condition('changed', $expiry_period, '<')
     ->execute();
-
-  // Delete entries for accounts that no more exists.
-  $result = db_select('recovery_pass', 'r')
-    ->fields('r', array('uid'))
-    ->execute()
-    ->fetchAll();
-  foreach ($result as $key => $value) {
-    $uid = $value->uid;
-    $account = user_load($uid);
-    if (empty($account)) {
-      $entry_deleted = db_delete('recovery_pass')
-        ->condition('uid', $uid)
-        ->execute();
-    }
-  }
 }

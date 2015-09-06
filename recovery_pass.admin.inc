@@ -10,6 +10,7 @@
 function recovery_pass_config_form($form, &$form_state) {
   $form = array();
   $form['recovery_pass_help_text'] = array(
+    '#type' => 'item',
     '#markup' => t('Edit the e-mail messages sent to users who request a new password. The list of available tokens that can be used in e-mails is provided below. For displaying new password please use <strong>[user_new_password]</strong> placeholder.'),
   );
 
@@ -53,5 +54,27 @@ function recovery_pass_config_form($form, &$form_state) {
     '#default_value' => _recovery_pass_mail_text('old_pass_warning'),
   );
 
+  $form['recovery_pass_fpass_redirect'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Redirect Path after Forgot Password Form'),
+      '#maxlength' => 255,
+      '#default_value' => variable_get('recovery_pass_fpass_redirect', 'user'),
+      '#description' => t('The path to redirect user, after forgot password form. This can be an internal Drupal path such as %add-node or an external URL such as %drupal. Enter %front to link to the front page.', array('%front' => '<front>', '%add-node' => 'node/add', '%drupal' => 'http://drupal.org')),
+      '#required' => TRUE,
+      '#element_validate' => array('_recovery_pass_validate_path'),
+    );
+
   return system_settings_form($form);
+}
+
+/**
+ *
+ */
+function _recovery_pass_validate_path($element, &$form_state, $form) {
+  if (!empty($element['#value'])) {
+    $path = $element['#value'];
+    if (!drupal_valid_path($path) && !drupal_lookup_path('source', $path) && !url_is_external($path)) {
+      form_error($element, t('Please provide valid redirect path.'));
+    }
+  }
 }
