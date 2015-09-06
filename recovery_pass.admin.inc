@@ -56,7 +56,7 @@ function recovery_pass_config_form($form, &$form_state) {
 
   $form['recovery_pass_fpass_redirect'] = array(
       '#type' => 'textfield',
-      '#title' => t('Redirect Path after Forgot Password Form'),
+      '#title' => t('Redirect Path after Forgot Password Page'),
       '#maxlength' => 255,
       '#default_value' => variable_get('recovery_pass_fpass_redirect', 'user'),
       '#description' => t('The path to redirect user, after forgot password form. This can be an internal Drupal path such as %add-node or an external URL such as %drupal. Enter %front to link to the front page.', array('%front' => '<front>', '%add-node' => 'node/add', '%drupal' => 'http://drupal.org')),

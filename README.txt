@@ -52,7 +52,7 @@ CONFIGURATION
 
 TROUBLESHOOTING
 ---------------
-As of now, Recovery Module alters user_pass form and hence the it works at only Request new password form at url: /user/password . In case the module is not working properly, you may try:
+As of now, Recovery Module alters user_pass form and hence it works at only Request new password form at url: /user/password . In case the module is not working properly, you may try:
 * Clear the cache
 * Reinstall the module after disable and uninstallation.
 
