@@ -55,7 +55,7 @@ function recovery_pass_forgot_password_submit($form, &$form_state) {
     watchdog('recovery_pass', 'Error saving old password for user ' . $user->uid, array(), WATCHDOG_NOTICE, 'link');
   }
   // Save new password.
-  user_save($user, $edit = array('pass' => $random_password), $category = 'account');
+  user_save($user, array('pass' => $random_password), 'account');
 
   // Retrive email body and subject.
   $message = _recovery_pass_mail_text('email_text', $language, TRUE, $user);
@@ -272,10 +272,14 @@ function _recovery_pass_match_old_password($password, $old_password) {
 /**
  * Implements hook_cron().
  */
-function recover_pass_cron() {
+function recovery_pass_cron() {
   $expiry_period = strtotime("-1 week");
   // Delete all records more created than one week ago.
   $entry_deleted = db_delete('recovery_pass')
     ->condition('changed', $expiry_period, '<')
     ->execute();
+
+  if ($entry_deleted) {
+    watchdog('recovery_pass', 'Error deleting entry from recovery_table at cron time.', array(), WATCHDOG_NOTICE, 'link');
+  }
 }
