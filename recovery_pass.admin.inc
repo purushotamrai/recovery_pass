@@ -64,7 +64,7 @@ function recovery_pass_config_form($form, &$form_state) {
         '%front' => '<front>',
         '%add-node' => 'node/add',
         '%drupal' => 'http://drupal.org',
-      ),
+      )
     ),
     '#required' => TRUE,
     '#element_validate' => array('_recovery_pass_validate_path'),
