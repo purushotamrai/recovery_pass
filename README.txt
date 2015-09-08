@@ -103,7 +103,7 @@ A: No, Recovery Password Module overrides Drupal default behaviour.
 Q: If htmlmail module exists can we send simple plain text mail at configuration
 settings?
 
-A: Yes, but in that case <br /> tag would be needed for new line.
+A: Yes and new lines would be considered too automatically.
 
 
 
