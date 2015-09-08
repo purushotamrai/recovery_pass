@@ -45,3 +45,15 @@ function recovery_pass_schema() {
   );
   return $schema;
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function recovery_pass_uninstall() {
+  variable_del('recovery_pass_help_text');
+  variable_del('recovery_pass_email_subject');
+  variable_del('recovery_pass_email_text');
+  variable_del('recovery_pass_old_pass_show');
+  variable_del('recovery_pass_old_pass_warning');
+  variable_del('recovery_pass_fpass_redirect');
+}
