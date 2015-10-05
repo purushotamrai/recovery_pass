@@ -11,7 +11,7 @@ function recovery_pass_help($path, $arg) {
   switch ($path) {
     case 'admin/help#recovery_pass':
       $output = file_get_contents(drupal_get_path('module', 'recovery_pass') . '/README.txt');
-      return module_exists('markdown') ? filter_xss_admin(module_invoke('markdown', 'filter', 'process', 0, -1, $output)) : '<pre>' . check_plain($output) . '</pre>';
+      return $output;
   }
 }
 
@@ -273,7 +273,7 @@ function _recovery_pass_match_old_password($password, $old_password) {
  * Implements hook_cron().
  */
 function recovery_pass_cron() {
-  $expiry_period = strtotime("-1 week");
+  $expiry_period = strtotime("-" . variable_get('recover_pass_expiry_period', '1') . " week");
   // Delete all records more created than one week ago.
   $entry_deleted = db_delete('recovery_pass')
     ->condition('changed', $expiry_period, '<')
