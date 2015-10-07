@@ -52,7 +52,7 @@ function recovery_pass_forgot_password_submit($form, &$form_state) {
   $random_password = user_password();
   // Store Old Hash Password Temporarily.
   if (!_recovery_pass_store_old_pass($user)) {
-    watchdog('recovery_pass', 'Error saving old password for user ' . $user->uid, array(), WATCHDOG_NOTICE, 'link');
+    watchdog('recovery_pass', 'Error saving old password for user @id', array('@id' => $user->uid), WATCHDOG_NOTICE, 'link');
   }
   // Save new password.
   user_save($user, array('pass' => $random_password), 'account');
@@ -225,7 +225,7 @@ function recovery_pass_user_login_validate($form, &$form_state) {
           ->condition('uid', $result['uid'])
           ->execute();
         if (!$entry_deleted) {
-          watchdog('recovery_pass', 'Error deleting entry from recovery_table for user ' . $result['uid'], array(), WATCHDOG_NOTICE, 'link');
+          watchdog('recovery_pass', 'Error deleting entry from recovery_table for user @id', array('@id' => $result['uid']), WATCHDOG_NOTICE, 'link');
         }
       }
     }
@@ -273,7 +273,7 @@ function _recovery_pass_match_old_password($password, $old_password) {
  * Implements hook_cron().
  */
 function recovery_pass_cron() {
-  $expiry_period = strtotime("-" . variable_get('recover_pass_expiry_period', '1') . " week");
+  $expiry_period = strtotime("-" . variable_get('recovery_pass_expiry_period', '1') . " week");
   // Delete all records more created than one week ago.
   $entry_deleted = db_delete('recovery_pass')
     ->condition('changed', $expiry_period, '<')

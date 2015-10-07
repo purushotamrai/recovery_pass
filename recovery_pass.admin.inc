@@ -70,11 +70,11 @@ function recovery_pass_config_form($form, &$form_state) {
     '#element_validate' => array('_recovery_pass_validate_path'),
   );
 
-  $form['recover_pass_expiry_period'] = array(
+  $form['recovery_pass_expiry_period'] = array(
     '#type' => 'textfield',
     '#title' => t('Expiry Period'),
     '#description' => t('Please enter expiry period in weeks. After these many weeks the record for old password warning to be shown to that particular user would be deleted.'),
-    '#default_value' => variable_get('recover_pass_expiry_period', '1'),
+    '#default_value' => variable_get('recovery_pass_expiry_period', '1'),
     '#element_validate' => array('element_validate_integer_positive'),
   );
 

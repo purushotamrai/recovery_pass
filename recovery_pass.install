@@ -56,5 +56,5 @@ function recovery_pass_uninstall() {
   variable_del('recovery_pass_old_pass_show');
   variable_del('recovery_pass_old_pass_warning');
   variable_del('recovery_pass_fpass_redirect');
-  variable_del('recover_pass_expiry_period');
+  variable_del('recovery_pass_expiry_period');
 }
