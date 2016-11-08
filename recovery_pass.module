@@ -8,10 +8,23 @@
  * Implements hook_help().
  */
 function recovery_pass_help($path, $arg) {
+  $output = '';
   switch ($path) {
     case 'admin/help#recovery_pass':
       $output = file_get_contents(drupal_get_path('module', 'recovery_pass') . '/README.txt');
-      return $output;
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function recovery_pass_ctools_plugin_api($owner, $api) {
+  if ($owner == 'services' && $api == 'services') {
+    return array(
+      'version' => 3,
+      'file' => 'recovery_pass.services.inc'
+    );
   }
 }
 
